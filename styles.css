@@ -1,0 +1,22 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    margin: 0px;
+}
+
+.flexbox-container {
+    display: flex;
+    background: grey;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.flexbox-item {
+    border: 1px solid black;
+    padding: 10px;
+}
