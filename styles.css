@@ -1,5 +1,6 @@
 * {
     font-family: Arial, Helvetica, sans-serif;
+    font-size: larger;
 }
 
 body {
@@ -8,15 +9,25 @@ body {
 
 .flexbox-container {
     display: flex;
-    background: grey;
     justify-content: center;
     align-items: center;
     position: absolute;
     height: 100%;
     width: 100%;
+    flex-direction: column;
 }
 
 .flexbox-item {
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 10px;
+    margin: 10px;
+    text-align: center;
+}
+
+.definition {
+    border: 1px solid red;
+}
+
+.definition-title {
+    border: 1px solid blue;
 }
