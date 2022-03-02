@@ -21,6 +21,7 @@ function get(url) {
     }
 }
 
+// On button click
 const button = document.querySelector(".submit")
 
 button.onclick = function () {
@@ -28,3 +29,13 @@ button.onclick = function () {
     console.log(word)
     display(word)
 }
+
+// On 'Enter'
+const input = document.querySelector(".word")
+
+input.addEventListener("keyup", function(event) {
+    if (event.keyCode === 13) {
+     event.preventDefault()
+     button.click()
+    }
+  })
