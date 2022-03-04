@@ -26,7 +26,6 @@ const button = document.querySelector(".submit")
 
 button.onclick = function () {
     let word = document.querySelector(".word").value
-    console.log(word)
     display(word)
 }
 
