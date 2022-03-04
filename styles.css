@@ -48,7 +48,7 @@ body {
 }
 
 .submit:hover {
-    border-color: white;
+    background-color: rgb(236, 236, 236);
 }
 
 .definition-title {
