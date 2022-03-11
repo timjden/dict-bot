@@ -20,10 +20,12 @@ function addToDOM(responseStatus, responseText) {
 function get(url) {
     let httpRequest = new XMLHttpRequest()
     httpRequest.open('GET', url)
-    httpRequest.send()
+    // Assigns a function to XMLHttpRequest object's onload event 
+    // handler which fires when a request is completed sucessfully
     httpRequest.onload = function () {
         addToDOM(httpRequest.status, httpRequest.responseText)
     }
+    httpRequest.send()
 }
 
 // On button click
