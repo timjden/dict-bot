@@ -6,4 +6,4 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - run: ./deploy.sh
+      - run: sshpass -p ${{secrets.SERVER_PASSWORD}} scp * root@143.198.131.75:/dict-bot
