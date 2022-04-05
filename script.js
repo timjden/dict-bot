@@ -44,7 +44,7 @@ function handleDefinitionSearch() {
   // Clear any previous definition.
   definitionElement.innerHTML = ""
 
-  // Show an validation error message if there is no word.
+  // Show a validation error message if there is no word.
   const word = wordElement.value
   if (word === '') {
     definitionElement.innerHTML = 'Please enter a valid word to search for.'
@@ -52,7 +52,7 @@ function handleDefinitionSearch() {
   }
 
   // Add a loading text to the button
-  buttonElement.innerHTML = 'Searching...'
+  // buttonElement.innerHTML = 'Searching...'
 
   // Get the definition, then set the definition element's innerHTML to the definition.
   getDefinition(word).then((definition) => {
