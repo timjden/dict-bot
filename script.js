@@ -1,47 +1,79 @@
-function search(word) {
-  let url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
-  get(url)
+// Function to make a network request using XMLHttpRequest.
+function makeNetworkRequest(url) {
+  const promise = new Promise((resolve) => {
+    const httpRequest = new XMLHttpRequest()
+    httpRequest.open('GET', url)
+    httpRequest.send()
+    httpRequest.onload = function () {
+      resolve({
+        status: httpRequest.status,
+        body: httpRequest.responseText
+      })
+    }
+  })
+
+  return promise
 }
 
-function addToDOM(responseStatus, responseText) {
-  let responseJSON = JSON.parse(responseText)
-  let def
+// Function to return the definition of a word by making a network request.
+function getDefinition(word) {
+  const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+  const promise = makeNetworkRequest(url)
+  return promise.then(({ status, body }) => {
+    if (status === 200) {
+      const definition = JSON.parse(body)
+      return definition[0].meanings[0].definitions[0].definition
+    } else {
+      throw new Error('Failed to fetch definition. Please check your network.')
+    }
+  })
+}
 
-  if (responseStatus == 200) {
-    // document.querySelector(".definition-title").innerHTML = `The definition of ${responseJSON[0].word} is...`
-    def = responseJSON[0].meanings[0].definitions[0].definition
-    document.querySelector(".definition").innerHTML = def
-  } else {
-    def = responseJSON.title
-    document.querySelector(".definition").innerHTML = def
+// Input element
+const inputElement = document.querySelector(".word")
+// Button element
+const buttonElement = document.querySelector(".submit")
+// Definition element
+const definitionElement = document.querySelector(".definition")
+// Word element
+const wordElement = document.querySelector(".word")
+
+document.querySelectorAll('.image').forEach((e) => e.style.display = 'none')
+
+function handleDefinitionSearch() {
+  // Clear any previous definition.
+  definitionElement.innerHTML = ""
+
+  // Show a validation error message if there is no word.
+  const word = wordElement.value
+  if (word === '') {
+    definitionElement.innerHTML = 'Please enter a valid word to search for.'
+    return
   }
+
+  // Add a loading text to the button
+  // buttonElement.innerHTML = 'Searching...'
+
+  // Get the definition, then set the definition element's innerHTML to the definition.
+  getDefinition(word).then((definition) => {
+    document.querySelectorAll('.image').forEach((e) => e.style.display = 'block')
+    definitionElement.innerHTML = definition
+  }).catch(() => {
+    definitionElement.innerHTML = 'Failed to search for definition, please try again.'
+  }).finally(() => {
+    buttonElement.innerHTML = 'Search'
+  })
 }
 
-function get(url) {
-  let httpRequest = new XMLHttpRequest()
-  httpRequest.open('GET', url)
-  httpRequest.send()
-  httpRequest.onload = function () {
-    addToDOM(httpRequest.status, httpRequest.responseText)
-  }
+// Add onClick handler to button element.
+buttonElement.onclick = function () {
+  handleDefinitionSearch()
 }
 
-// On button click
-const button = document.querySelector(".submit")
-
-button.onclick = function () {
-  let word = document.querySelector(".word").value
-  // document.querySelector(".definition-title").innerHTML = ""
-  document.querySelector(".definition").innerHTML = ""
-  search(word)
-}
-
-// On 'Enter'
-const input = document.querySelector(".word")
-
-input.addEventListener("keyup", function (event) {
+// Add keyup eventListener to input element.
+inputElement.addEventListener("keyup", function (event) {
   if (event.keyCode === 13) {
     event.preventDefault()
-    button.click()
+    handleDefinitionSearch()
   }
 })

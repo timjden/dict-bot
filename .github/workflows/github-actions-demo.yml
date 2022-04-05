@@ -1,0 +1,12 @@
+name: GitHub Actions Demo
+on:
+  push:
+    branches:    
+      - 'main'
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: sshpass -p "${{secrets.SERVER_PASSWORD}}" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null * root@143.198.131.75:/dict-bot
