@@ -1,49 +1,52 @@
-function search(word) {
-  let url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
-  get(url)
-}
-
-function addToDOM(responseStatus, responseText) {
-  let responseJSON = JSON.parse(responseText)
-  let def
-
-  if (responseStatus == 200) {
-    // document.querySelector(".definition-title").innerHTML = `The definition of ${responseJSON[0].word} is...`
-    def = responseJSON[0].meanings[0].definitions[0].definition
-    document.querySelector(".definition").innerHTML = def
-  } else {
-    def = responseJSON.title
-    document.querySelector(".definition").innerHTML = def
-  }
-}
-
-function get(url) {
-    let httpRequest = new XMLHttpRequest()
-    httpRequest.open('GET', url)
-    // Assigns a function to XMLHttpRequest object's onload event 
-    // handler which fires when a request is completed sucessfully
-    httpRequest.onload = function () {
-        addToDOM(httpRequest.status, httpRequest.responseText)
+function httpRequest (url) {
+  let response = new Promise((resolve, reject) => {
+    let request = new XMLHttpRequest()
+    request.onload = () => {
+      if (request.status === 200) {
+        resolve(request.responseText)
+      } else {
+        reject(request.responseText)
+      }
     }
-    httpRequest.send()
+
+    request.open("GET", url)
+    request.send()
+    
+  })
+
+  return response
+
 }
 
-// On button click
-const button = document.querySelector(".submit")
-
-button.onclick = function () {
-  let word = document.querySelector(".word").value
-  // document.querySelector(".definition-title").innerHTML = ""
-  document.querySelector(".definition").innerHTML = ""
-  search(word)
+function handleResponse(word) {
+  httpRequest(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`).then((okResponse) => {
+    return JSON.parse(okResponse)[0].meanings[0].definitions[0].definition
+  }).catch((badResponse) => {
+    return JSON.parse(badResponse).message
+  })
 }
 
-// On 'Enter'
-const input = document.querySelector(".word")
+let result = handleResponse("hello")
 
-input.addEventListener("keyup", function (event) {
+const inputElement = document.querySelector(".word")
+const buttonElement = document.querySelector(".submit")
+const definitionElement = document.querySelector(".definition")
+const wordElement = document.querySelector(".word")
+
+function searchForWord (word) {
+  let definition = handleResponse(word)
+  definitionElement.innerHTML = ""
+}
+
+buttonElement.onclick = function () {
+  searchForWord(wordElement)
+}
+
+// Add keyup eventListener to input element.
+inputElement.addEventListener("keyup", function (event) {
   if (event.keyCode === 13) {
     event.preventDefault()
-    button.click()
+    searchForWord(wordElement)
   }
 })
+
