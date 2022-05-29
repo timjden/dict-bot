@@ -1,3 +1,7 @@
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+var recognition = new SpeechRecognition();
+var synth = window.speechSynthesis;
+
 function search(word) {
   let url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
   get(url)
@@ -8,9 +12,9 @@ function addToDOM(responseStatus, responseText) {
   let def
 
   if (responseStatus == 200) {
-    // document.querySelector(".definition-title").innerHTML = `The definition of ${responseJSON[0].word} is...`
     def = responseJSON[0].meanings[0].definitions[0].definition
     document.querySelector(".definition").innerHTML = def
+    talk(def)
   } else {
     def = responseJSON.title
     document.querySelector(".definition").innerHTML = def
@@ -20,22 +24,37 @@ function addToDOM(responseStatus, responseText) {
 function get(url) {
     let httpRequest = new XMLHttpRequest()
     httpRequest.open('GET', url)
-    // Assigns a function to XMLHttpRequest object's onload event 
-    // handler which fires when a request is completed sucessfully
     httpRequest.onload = function () {
         addToDOM(httpRequest.status, httpRequest.responseText)
     }
     httpRequest.send()
 }
 
+function talk(sayThis){
+  let speech = new SpeechSynthesisUtterance(sayThis)
+  speech.onend = function () {
+    if (document.querySelector(".word").value.toLowerCase() !== 'thank you') {
+      recognition.start()
+    } else {
+      recognition.stop()
+    }
+  }
+  synth.speak(speech)
+}
+
+// Set speech recognition event
+recognition.onresult = function(event) {
+  let word = event.results[0][0].transcript
+  document.querySelector(".word").value = word
+  search(word)
+}
+
 // On button click
 const button = document.querySelector(".submit")
 
 button.onclick = function () {
-  let word = document.querySelector(".word").value
-  // document.querySelector(".definition-title").innerHTML = ""
   document.querySelector(".definition").innerHTML = ""
-  search(word)
+  recognition.start();
 }
 
 // On 'Enter'
