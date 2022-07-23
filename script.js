@@ -1,5 +1,8 @@
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
 var recognition = new SpeechRecognition();
+recognition.lang = 'en-US';
+recognition.interimResults = true;
+// recognition.maxAlternatives = 1
 var synth = window.speechSynthesis;
 
 function search(word) {
@@ -22,28 +25,29 @@ function addToDOM(responseStatus, responseText) {
 }
 
 function get(url) {
-    let httpRequest = new XMLHttpRequest()
-    httpRequest.open('GET', url)
-    httpRequest.onload = function () {
-        addToDOM(httpRequest.status, httpRequest.responseText)
-    }
-    httpRequest.send()
+  let httpRequest = new XMLHttpRequest()
+  httpRequest.open('GET', url)
+  httpRequest.onload = function () {
+    addToDOM(httpRequest.status, httpRequest.responseText)
+  }
+  httpRequest.send()
 }
 
-function talk(sayThis){
+function talk(sayThis) {
+  recognition.stop()
   let speech = new SpeechSynthesisUtterance(sayThis)
   speech.onend = function () {
-    if (document.querySelector(".word").value.toLowerCase() !== 'thank you') {
-      recognition.start()
-    } else {
-      recognition.stop()
-    }
+    // if (document.querySelector(".word").value.toLowerCase() !== 'thank you') {
+    //   recognition.start()
+    // } else {
+    // }
   }
   synth.speak(speech)
 }
 
 // Set speech recognition event
-recognition.onresult = function(event) {
+recognition.onresult = function (event) {
+  console.log('recognition onresult')
   let word = event.results[0][0].transcript
   document.querySelector(".word").value = word
   search(word)
@@ -55,6 +59,7 @@ const button = document.querySelector(".submit")
 button.onclick = function () {
   document.querySelector(".definition").innerHTML = ""
   recognition.start();
+  console.log('recognition start')
 }
 
 // On 'Enter'
