@@ -1,73 +1,86 @@
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-var recognition = new SpeechRecognition();
-recognition.lang = 'en-US';
-recognition.interimResults = true;
-// recognition.maxAlternatives = 1
-var synth = window.speechSynthesis;
+var recognition = new SpeechRecognition()
+var synth = window.speechSynthesis
 
-function search(word) {
-  let url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
-  get(url)
-}
-
-function addToDOM(responseStatus, responseText) {
-  let responseJSON = JSON.parse(responseText)
-  let def
-
-  if (responseStatus == 200) {
-    def = responseJSON[0].meanings[0].definitions[0].definition
-    document.querySelector(".definition").innerHTML = def
-    talk(def)
-  } else {
-    def = responseJSON.title
-    document.querySelector(".definition").innerHTML = def
-  }
-}
-
-function get(url) {
-  let httpRequest = new XMLHttpRequest()
-  httpRequest.open('GET', url)
-  httpRequest.onload = function () {
-    addToDOM(httpRequest.status, httpRequest.responseText)
-  }
-  httpRequest.send()
-}
-
-function talk(sayThis) {
-  recognition.stop()
-  let speech = new SpeechSynthesisUtterance(sayThis)
-  speech.onend = function () {
-    // if (document.querySelector(".word").value.toLowerCase() !== 'thank you') {
-    //   recognition.start()
-    // } else {
-    // }
-  }
-  synth.speak(speech)
-}
-
-// Set speech recognition event
-recognition.onresult = function (event) {
-  console.log('recognition onresult')
-  let word = event.results[0][0].transcript
-  document.querySelector(".word").value = word
-  search(word)
-}
+const dictAPI = "https://api.dictionaryapi.dev/api/v2/entries/en/"
+const buttonFunctionA = "Listen"
+const buttonFunctionB = "Stop"
+let currentResult = {}
 
 // On button click
-const button = document.querySelector(".submit")
-
-button.onclick = function () {
-  document.querySelector(".definition").innerHTML = ""
-  recognition.start();
-  console.log('recognition start')
+document.querySelector("button").onclick = function () {
+  // document.querySelector(".definition").innerHTML = ""
+  if (document.querySelector("button").innerHTML == buttonFunctionA) {
+    startRecogniton(buttonFunctionB)
+  } else {
+    stopRecognition(buttonFunctionA)
+  }  
 }
 
-// On 'Enter'
-const input = document.querySelector(".word")
-
-input.addEventListener("keyup", function (event) {
-  if (event.keyCode === 13) {
-    event.preventDefault()
-    button.click()
+// On result from speech recognition
+recognition.onresult = function (event) {
+  let word = event.results[0][0].transcript
+  console.log(word)
+  if (word == "stop") {
+    recognition.onend = function (event) {
+      stopRecognition(buttonFunctionA)
+    }
+  } else {
+    get(dictAPI + word)
   }
-})
+}
+
+// On end of speech recognition
+recognition.onend = function (event) {
+  if (!synth.speaking) {
+    startRecogniton(buttonFunctionB)
+  }
+}
+
+// Functions
+
+// Start recognition
+function startRecogniton(buttonName) {
+  console.log("Listening...")
+  document.querySelector("button").innerHTML = buttonName
+  recognition.start()
+}
+
+// Stop recognition
+function stopRecognition(buttonName) {
+  document.querySelector("button").innerHTML = buttonName
+  recognition.stop()
+}
+
+// Search dictionary via API
+function get(url) {
+    let httpRequest = new XMLHttpRequest()
+    httpRequest.open('GET', url)
+    httpRequest.onload = function () {
+      currentResult = httpRequest.responseText
+      responseHandler(httpRequest.status, httpRequest.responseText)
+    }
+    httpRequest.send()
+  }
+
+// Say definition
+function readThis(textToRead) {
+    let speech = new SpeechSynthesisUtterance(textToRead)
+    speech.onend = function(event) {
+      startRecogniton(buttonFunctionB)
+    }
+    synth.speak(speech)
+}
+
+// Response handler
+function responseHandler(responseStatus, responseText) {
+    currentResult = JSON.parse(responseText)
+    console.log(currentResult)
+    if (responseStatus == 200) {
+      definition = currentResult[0].meanings[0].definitions[0].definition
+    } else {
+      definition = "No matches"
+    }
+    stopRecognition(buttonFunctionA)
+    readThis(definition)
+}
