@@ -100,8 +100,8 @@ function readThis(textToRead) {
 
 // Response handler
 function responseHandler(responseStatus, responseText) {
-  console.log(responseText)  
   currentResult = JSON.parse(responseText)
+  console.log(currentResult)  
   let definition = ""
   let partOfSpeech = ""
 
